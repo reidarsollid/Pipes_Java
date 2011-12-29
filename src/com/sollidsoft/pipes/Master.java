@@ -6,7 +6,6 @@ import java.nio.channels.Pipe;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,7 +34,7 @@ public class Master {
         while (!Thread.currentThread().isInterrupted()) {
             int readyKeys = selector.select();
             if (readyKeys == 0) continue;
-            Set<SelectionKey> selectionKeys = new HashSet<>(selector.selectedKeys());
+            Set<SelectionKey> selectionKeys = selector.selectedKeys();
             for (SelectionKey key : selectionKeys) {
                 if (key.isReadable()) {
                     ReadableByteChannel readableByteChannel = (ReadableByteChannel) key.channel();

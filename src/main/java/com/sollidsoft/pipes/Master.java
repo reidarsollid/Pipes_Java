@@ -35,13 +35,9 @@ public class Master {
             int readyKeys = selector.select();
             if (readyKeys == 0) continue;
             Set<SelectionKey> selectionKeys = selector.selectedKeys();
-            for (SelectionKey key : selectionKeys) {
-                if (key.isReadable()) {
-                    ReadableByteChannel readableByteChannel = (ReadableByteChannel) key.channel();
-                    System.out.println("Bytes read " + handleEvent(readableByteChannel));
-                    key.cancel();
-                }
-            }
+            selectionKeys.stream()
+                    .filter(SelectionKey::isReadable)
+                    .forEach(key -> System.out.println("Bytes read " + handleEvent((ReadableByteChannel) key.channel())));
         }
     }
 
@@ -55,14 +51,18 @@ public class Master {
         }
     }
 
-    private int handleEvent(ReadableByteChannel readableByteChannel) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-        byteBuffer.clear();
-        int retval = readableByteChannel.read(byteBuffer);
-        byteBuffer.rewind();
-        long result = byteBuffer.getLong();
-        System.out.println("Result : " + result);
-        return retval;
+    private int handleEvent(ReadableByteChannel readableByteChannel) {
+        try {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+            byteBuffer.clear();
+            int retval = readableByteChannel.read(byteBuffer);
+            byteBuffer.rewind();
+            long result = byteBuffer.getLong();
+            System.out.println("Result : " + result);
+            return retval;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) {
